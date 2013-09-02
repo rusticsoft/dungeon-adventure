@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class Runner : MonoBehaviour {	
+public class Runner : MonoBehaviour {
 	public float distanceTraveled;
 
 	// Use this for initialization
@@ -13,7 +14,7 @@ public class Runner : MonoBehaviour {
 	public Vector3 facingDirection;
 		
 	public float walkingSpeed = 5.0f;
-	public float walkingSnappyness = 50f;
+	public float walkingSnappyness = 5f;
 	public float turningSmoothing = 0.3f;
 	public float runScale = 1.5f;
 	
@@ -22,6 +23,7 @@ public class Runner : MonoBehaviour {
 	public Transform hitObject;
 	public float objectDistance;
 	public bool hitting = false;
+	private HashSet<Ability> usingAbility = new HashSet<Ability>();
 	
 	// The angle between dirA and dirB around axis
 	static float AngleAroundAxis (Vector3 dirA, Vector3 dirB, Vector3 axis) {
@@ -35,46 +37,61 @@ public class Runner : MonoBehaviour {
 	    // Return angle multiplied with 1 or -1
 	    return angle * (Vector3.Dot (axis, Vector3.Cross (dirA, dirB)) < 0 ? -1 : 1);
 	}
-		
+	
+	
+	//Probably make a WorldMessage class at some point
+	public void receiveMessage(WorldMessage message) {
+		switch (message.type) {
+		case WorldMessage.MessageType.USE_ABILITY:
+			usingAbility.Add((Ability) message.content);
+			break;
+		default:
+			break;
+		}
+	}
+	
 	// Update is called once per frame	
 	void Update () {
 		float x = 0f;
 		float y = 0f;
 		float z = 0f;
 		RaycastHit hitInfo;
+		HashSet<Ability> lastAbility = new HashSet<Ability>(usingAbility);
+		usingAbility.Clear();
 		
-		if(Input.anyKey) {
-			if(Input.GetKey(KeyCode.D)) {
-				x += 1.0f;
-			}
-			if(Input.GetKey(KeyCode.A)) {				
-				x -= 1.0f;
-			}
-			if(Input.GetKey(KeyCode.W)) {
-				y += 1.0f;
-			}
-			if(Input.GetKey(KeyCode.S)) {
-				y -= 1.0f;
-			}
-			if(Input.GetKey(KeyCode.Space)) {
-				Physics.Raycast (transform.position, -transform.up, out hitInfo, 1.1f);
-				hitObject = hitInfo.transform;
-				if(hitObject != null) {
-					z += 1.0f;
-				}
-			}
-			if(Input.GetKey(KeyCode.LeftShift)) {				
-				z -= 1.0f;
-			}
-			if(Input.GetKey(KeyCode.Q)) {
-				Physics.Raycast(transform.position, transform.forward, out hitInfo);
-				hitObject = hitInfo.transform;
-				objectDistance = hitInfo.distance;
-			}
-			if(Input.GetKey(KeyCode.E)) {
+		//foreach(Ability a in Ability) {
+		//	if(lastAbility.Contains(a]) {
+		if(lastAbility.Contains(Ability.MOVE_RIGHT)) {
+			x += 1.0f;
+		}
+		if(lastAbility.Contains(Ability.MOVE_LEFT)) {		
+			x -= 1.0f;
+		}
+		if(lastAbility.Contains(Ability.MOVE_UP)) {
+			z += 1.0f;
+		}
+		if(lastAbility.Contains(Ability.MOVE_DOWN)) {
+			z -= 1.0f;
+		}
+		if(lastAbility.Contains(Ability.JUMP)) {
+			Physics.Raycast (transform.position, -transform.up, out hitInfo, 1.1f);
+			hitObject = hitInfo.transform;
+			if(hitObject != null) {
+				y += 2.0f;
 			}
 		}
-		movementDirection.Set(x,z,y);
+		if(lastAbility.Contains(Ability.FAST_FALL)) {
+			y -= 1.0f;
+		}
+		if(lastAbility.Contains(Ability.FAST_FALL)) {
+			Physics.Raycast(transform.position, transform.forward, out hitInfo);
+			hitObject = hitInfo.transform;
+			objectDistance = hitInfo.distance;
+		}
+		if(lastAbility.Contains(Ability.FAST_FALL)) {
+		}
+		
+		movementDirection.Set(x,y,z);
 		
 		// Handle the movement of the character
 		Vector3 targetVelocity = movementDirection * walkingSpeed;
@@ -82,24 +99,9 @@ public class Runner : MonoBehaviour {
 			targetVelocity *= runScale;
 		}
 		Vector3 deltaVelocity = targetVelocity - rigidbody.velocity;
-		if (rigidbody.useGravity) {
-			deltaVelocity.y = z / 4;
-			
-		}
-		rigidbody.AddForce (deltaVelocity * walkingSnappyness, ForceMode.Acceleration);
-		
-		// Setup player to face facingDirection, or if that is zero, then the movementDirection
-		/*Vector3 faceDir = facingDirection;
-		if (faceDir == Vector3.zero)
-			faceDir = movementDirection;
-		
-		// Make the character rotate towards the target rotation
-		if (faceDir == Vector3.zero) {
-			rigidbody.angularVelocity = Vector3.zero;
-		}
-		else {
-			float rotationAngle = AngleAroundAxis (transform.forward, faceDir, Vector3.up);
-			rigidbody.angularVelocity = (Vector3.up * rotationAngle * turningSmoothing);
-		}*/
-	}/* */
+		deltaVelocity.x *= walkingSnappyness;
+		deltaVelocity.z *= walkingSnappyness;
+		rigidbody.AddForce (deltaVelocity, ForceMode.Acceleration);
+		//rigidbody.AddForce (deltaVelocity , ForceMode.Acceleration);
+	}
 }
