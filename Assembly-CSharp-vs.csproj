@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{1FAD3823-B16C-279F-60F0-CA98185AE74A}</ProjectGuid>
+	<ProjectGuid>{532F2833-EF55-9680-BDEB-74A58467FE3A}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -44,10 +44,14 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\AbilityManager.cs" />
      <Compile Include="Assets\ClockAnimator.cs" />
+     <Compile Include="Assets\Mechanics\PhysicalMechanics.cs" />
+     <Compile Include="Assets\Rotlight.cs" />
      <Compile Include="Assets\Runner.cs" />
      <Compile Include="Assets\SkylineManager.cs" />
      <Compile Include="Assets\Star.cs" />
+     <Compile Include="Assets\WorldManagement\InputTranslator.cs" />
      <None Include="Assets\Star.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
