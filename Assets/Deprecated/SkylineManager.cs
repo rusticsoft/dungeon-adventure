@@ -5,7 +5,7 @@ public class SkylineManager : MonoBehaviour {
     public Transform prefab;
     public int numberOfObjects;
     public float recycleOffset;
-    public Runner targetRunner;
+    public Character targetRunner;
 
     private Vector3 nextPosition;
     private    Queue<Transform> skylineQueue;

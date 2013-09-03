@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Runner : MonoBehaviour {
+public class Character : MonoBehaviour {
     public float distanceTraveled;
 
     // Use this for initialization
