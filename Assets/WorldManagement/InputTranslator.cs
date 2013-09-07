@@ -72,7 +72,7 @@ public class InputTranslator : MonoBehaviour {
     }
 
     void Update() {
-        if(Input.GetMouseButtonDown(0)) {
+        if(Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (Physics.Raycast(ray, out hitData)) {
@@ -99,7 +99,7 @@ public class InputTranslator : MonoBehaviour {
                 Instantiate(createe, hitData.point + new Vector3(0, createe.transform.lossyScale.y, 0), hitData.transform.rotation);
             }
         }
-        if(Input.GetMouseButtonDown(3)) {
+        if(Input.GetMouseButtonDown(0) && Input.GetKey(KeyCode.LeftShift)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (Physics.Raycast(ray, out hitData)) {
