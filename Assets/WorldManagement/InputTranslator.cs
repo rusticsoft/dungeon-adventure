@@ -21,6 +21,12 @@ public class InputTranslator : MonoBehaviour {
         }
     }
 
+    void OnGUI() {
+        if (GUI.Button(new Rect(10, 10, 150, 100), "I am a button"))
+            print("You clicked the button!");
+
+    }
+
     private static void applyMaterial(Character o, Material m) {
         MeshRenderer mrMesh = o.GetComponent<MeshRenderer>();
         mrMesh.material = m;
@@ -28,7 +34,7 @@ public class InputTranslator : MonoBehaviour {
 
     
     public void ReceiveMessage(WorldMessage message) {
-        
+
     }
     
     public void TranslateMessage(WorldMessage message) {
@@ -110,6 +116,10 @@ public class InputTranslator : MonoBehaviour {
             updateFollower(follower, target);
         }
         if(Input.anyKey) {
+            if(Input.GetKey(KeyCode.Escape)) {
+                Rect r = new Rect(Screen.height / 2 - 100, Screen.width / 2 - 100, Screen.height / 2 + 100, Screen.width / 2 + 100);
+                //GUI.Box (r, "treat me better");
+            }
             foreach (var key in messageMap.Keys) {
                 if (Input.GetKey(key)) {
                     target.receiveMessage(messageMap[key]);
