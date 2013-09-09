@@ -5,7 +5,7 @@ public class SkylineManager : MonoBehaviour {
     public Transform prefab;
     public int numberOfObjects;
     public float recycleOffset;
-    public Character targetRunner;
+    public Messageable targetRunner;
 
     private Vector3 nextPosition;
     private    Queue<Transform> skylineQueue;
@@ -28,7 +28,8 @@ public class SkylineManager : MonoBehaviour {
         float xOne, xTwo;
         
         xOne = skylineQueue.Peek().localPosition.x;
-        xTwo = targetRunner.distanceTraveled;
+        //xTwo = targetRunner.distanceTraveled;
+        xTwo = targetRunner.transform.localPosition.x;
         if( xOne + recycleOffset < xTwo){
             Transform o = skylineQueue.Dequeue();
             o.localPosition = nextPosition;

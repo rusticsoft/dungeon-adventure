@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 public class InputTranslator : MonoBehaviour {
-    public Character target;
-    public Character follower;
+    public Messageable target;
+    public Messageable follower;
 
     public Material playerMaterial;
     public Material followerMaterial;
@@ -11,34 +11,23 @@ public class InputTranslator : MonoBehaviour {
 
     public GameObject createe;
     public float moveThreshold = 1.0f;
-    
+
     void Start() {
-        if(target != null) {
-            applyMaterial(target, playerMaterial);
-        }
-        if(follower != null) {
-            applyMaterial(follower, followerMaterial);
-        }
+        applyMaterial(target, playerMaterial);
+        applyMaterial(follower, followerMaterial);
+
+        SandboxThing.Start();
     }
 
     void OnGUI() {
-        if (GUI.Button(new Rect(10, 10, 150, 100), "I am a button"))
-            print("You clicked the button!");
-
+        SandboxThing.OnGUI();
     }
 
-    private static void applyMaterial(Character o, Material m) {
+    private static void applyMaterial(Messageable o, Material m) {
+        if(o == null) return;
+
         MeshRenderer mrMesh = o.GetComponent<MeshRenderer>();
         mrMesh.material = m;
-    }
-
-    
-    public void ReceiveMessage(WorldMessage message) {
-
-    }
-    
-    public void TranslateMessage(WorldMessage message) {
-    
     }
     
     public static readonly Dictionary<KeyCode, WorldMessage> messageMap = new Dictionary<KeyCode, WorldMessage>();
@@ -55,7 +44,7 @@ public class InputTranslator : MonoBehaviour {
         messageMap.Add(KeyCode.E, new WorldMessage(messType, null));
     }
 
-    void moveCharacterTowards (Character target, Vector3 destination)
+    void moveCharacterTowards (Messageable target, Vector3 destination)
     {
         if(target.transform.position.x - destination.x > moveThreshold) {
             target.receiveMessage(new WorldMessage(WorldMessage.MessageType.USE_ABILITY, Ability.MOVE_LEFT));
@@ -76,7 +65,7 @@ public class InputTranslator : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (Physics.Raycast(ray, out hitData)) {
-                Character newR = hitData.transform.GetComponent<Character>();
+                Messageable newR = hitData.transform.GetComponent<Messageable>();
                 if (newR != null && newR != target) {
                     applyMaterial(target, neutralMaterial);
                     if(follower != null) applyMaterial(follower, followerMaterial);
@@ -103,12 +92,12 @@ public class InputTranslator : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitData;
             if (Physics.Raycast(ray, out hitData)) {
-                Character newF = hitData.transform.GetComponent<Character>();
-                if(follower != null) applyMaterial(follower, neutralMaterial);
-                if (newF != null) {
-                    applyMaterial(newF, followerMaterial);
-                    applyMaterial(target, playerMaterial);
-                }
+                Messageable newF = hitData.transform.GetComponent<Messageable>();
+
+                applyMaterial(follower, neutralMaterial);
+                applyMaterial(newF, followerMaterial);
+                applyMaterial(target, playerMaterial);
+
                 follower = newF;
             }
         }
@@ -116,19 +105,24 @@ public class InputTranslator : MonoBehaviour {
             updateFollower(follower, target);
         }
         if(Input.anyKey) {
-            if(Input.GetKey(KeyCode.Escape)) {
-                Rect r = new Rect(Screen.height / 2 - 100, Screen.width / 2 - 100, Screen.height / 2 + 100, Screen.width / 2 + 100);
-                //GUI.Box (r, "treat me better");
+            if(target != null) {
+                dispatchMessages(target, messageMap);
             }
-            foreach (var key in messageMap.Keys) {
-                if (Input.GetKey(key)) {
-                    target.receiveMessage(messageMap[key]);
-                }
+        }
+
+        SandboxThing.Update();
+    }
+
+    public void dispatchMessages (Messageable target, Dictionary<KeyCode, WorldMessage> messageMap)
+    {
+        foreach (var key in messageMap.Keys) {
+            if (Input.GetKey(key)) {
+                target.receiveMessage(messageMap[key]);
             }
         }
     }
 
-    void updateFollower(Character follower, Character target) {
+    void updateFollower(Messageable follower, Messageable target) {
         if (follower == target) {
             return;
         }
@@ -149,4 +143,46 @@ public class WorldMessage {
     
     public MessageType type;
     public object content;
+}
+
+public class SandboxThing {
+
+    private delegate void guiFunction ();
+
+    private static guiFunction newGuiFunc = delegate() {
+                   Rect r = new Rect(Screen.height / 2 - 100, Screen.width / 2 - 100, Screen.height / 2 + 100, Screen.width / 2 + 100);
+                   GUI.Box (r, "treat me better");
+                };
+
+    private static List<guiFunction> allGuis = new List<guiFunction>();
+
+    public static void Start ()
+    {
+        allGuis.Add(
+            delegate() {
+                if (GUI.Button(new Rect(10, 10, 150, 100), "I am a button")) {
+                    //print("You clicked the button!");
+                }
+            }
+        );
+    }
+
+    public static void Update ()
+    {
+        if(Input.GetKey(KeyCode.Escape)) {
+            if(allGuis.Contains(newGuiFunc)) {
+                allGuis.Remove(newGuiFunc);
+            } else {
+                allGuis.Add(newGuiFunc);
+            }
+
+        }
+    }
+
+    public static void OnGUI ()
+    {
+        foreach (guiFunction gf in allGuis) {
+            gf();
+        }
+    }
 }
