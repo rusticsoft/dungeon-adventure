@@ -10,19 +10,19 @@ public class PlaneMesherUpper : MonoBehaviour {
         MeshBuilder meshBuilder = new MeshBuilder();
         
         //Set up the vertices and triangles:
-        meshBuilder.Vertices.Add(new Vector3(0.0f, 0.0f, 0.0f));
+        meshBuilder.Vertices.Add(new Vector3(-m_Width / 2f, 0.0f, -m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(0.0f, 0.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(0.0f, 0.0f, m_Length));
+        meshBuilder.Vertices.Add(new Vector3(-m_Width / 2f, 0.0f, m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(0.0f, 1.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(m_Width, 0.0f, m_Length));
+        meshBuilder.Vertices.Add(new Vector3(m_Width / 2f, 0.0f, m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(1.0f, 1.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(m_Width, 0.0f, 0.0f));
+        meshBuilder.Vertices.Add(new Vector3(m_Width / 2f, 0.0f, -m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(1.0f, 0.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
