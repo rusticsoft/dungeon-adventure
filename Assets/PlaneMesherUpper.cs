@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
+[ExecuteInEditMode]
 public class PlaneMesherUpper : MonoBehaviour {
     public float m_Width = 1;
     public float m_Length = 1;
+
 
 	void Start () {
         MeshBuilder meshBuilder = new MeshBuilder();
