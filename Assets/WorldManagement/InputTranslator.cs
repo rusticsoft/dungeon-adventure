@@ -1,14 +1,31 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+public enum TEST_MODE_OPTIONS {
+	CAMERA_FPS_LOOK,
+	CAMERA_FPS_MOVE,
+	CAMERA_FOLLOW_LOOK,
+	CAMERA_FOLLOW_MOVE
+}
+
 public class InputTranslator : MonoBehaviour {
     public Character target;
     public Character follower;
+	
+	public Camera primaryCamera;
 
     public Material playerMaterial;
     public Material followerMaterial;
     public Material neutralMaterial;
-
+	
+	public List<TEST_MODE_OPTIONS> visibleOptions;
+	
+	private delegate void OptionToggleFunction (Dictionary<TEST_MODE_OPTIONS, bool> optionStates);
+	
+	private Dictionary<TEST_MODE_OPTIONS, bool> optionToState;
+	private Dictionary<TEST_MODE_OPTIONS, OptionToggleFunction> optionToToggleFunction;
+	
     public GameObject createe;
     public float moveThreshold = 1.0f;
     
@@ -19,11 +36,63 @@ public class InputTranslator : MonoBehaviour {
         if(follower != null) {
             applyMaterial(follower, followerMaterial);
         }
+		
+		optionToState = new Dictionary<TEST_MODE_OPTIONS, bool>();
+		optionToToggleFunction = new Dictionary<TEST_MODE_OPTIONS, OptionToggleFunction>();
+		
+		for (int i = 0; i < visibleOptions.Count; ++i) {
+			var item = visibleOptions[i];
+			optionToState[item] = false;
+			optionToToggleFunction[item] = delegate (Dictionary<TEST_MODE_OPTIONS, bool> optionStates){
+				optionStates[item] = !optionStates[item];
+				if(optionStates[item]) {
+					switch(item) {
+					case TEST_MODE_OPTIONS.CAMERA_FPS_LOOK:
+						optionStates[TEST_MODE_OPTIONS.CAMERA_FOLLOW_LOOK] = false;
+						primaryCamera.gameObject.AddComponent<MouseLook>();
+						break;
+					case TEST_MODE_OPTIONS.CAMERA_FPS_MOVE:
+						optionStates[TEST_MODE_OPTIONS.CAMERA_FOLLOW_MOVE] = false;
+						primaryCamera.gameObject.AddComponent<FPSInputController>();
+						break;
+					case TEST_MODE_OPTIONS.CAMERA_FOLLOW_LOOK:
+						optionStates[TEST_MODE_OPTIONS.CAMERA_FPS_LOOK] = false;
+						primaryCamera.gameObject.AddComponent<SmoothLookAt>();
+						primaryCamera.GetComponent<SmoothLookAt>().target = target.transform;
+						break;
+					case TEST_MODE_OPTIONS.CAMERA_FOLLOW_MOVE:
+						optionStates[TEST_MODE_OPTIONS.CAMERA_FPS_MOVE] = false;
+						primaryCamera.gameObject.AddComponent<SmoothFollow>();
+						primaryCamera.GetComponent<SmoothFollow>().target = target.transform;
+						break;
+					}
+				}
+				
+				if(!optionStates[TEST_MODE_OPTIONS.CAMERA_FPS_LOOK]) {
+					Object.Destroy(primaryCamera.GetComponent<MouseLook>());
+				}
+				if(!optionStates[TEST_MODE_OPTIONS.CAMERA_FPS_MOVE]) {
+					Object.Destroy(primaryCamera.GetComponent<FPSInputController>());
+				}
+				if(!optionStates[TEST_MODE_OPTIONS.CAMERA_FOLLOW_LOOK]) {
+					Object.Destroy(primaryCamera.GetComponent<SmoothLookAt>());
+				}
+				if(!optionStates[TEST_MODE_OPTIONS.CAMERA_FOLLOW_MOVE]) {
+					Object.Destroy(primaryCamera.GetComponent<SmoothFollow>());
+				}
+			};
+		}
     }
 
     void OnGUI() {
-        if (GUI.Button(new Rect(10, 10, 150, 100), "I am a button"))
-            print("You clicked the button!");
+		
+		for (int i = 0; i < visibleOptions.Count; ++i) {
+			var item = visibleOptions[i];
+			if (GUI.Button(new Rect(10, 10 + 35 * (i + 1), 180, 30), item.ToString() + ": " + ((optionToState[item]) ? "ON" : "OFF"))) {
+            	optionToToggleFunction[item](optionToState);
+			}
+		}
+        
 
     }
 
