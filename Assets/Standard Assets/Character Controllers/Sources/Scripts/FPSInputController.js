@@ -1,3 +1,4 @@
+import UnityEngine;
 private var motor : CharacterMotor;
 
 // Use this for initialization

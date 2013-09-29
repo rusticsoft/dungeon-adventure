@@ -4,36 +4,27 @@ using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class PlaneMesherUpper : MonoBehaviour {
-    public int width = 1;
-    public int length = 1;
-	
-	private int lastWidth;
-	private int lastLength;
+    public float m_Width = 1;
+    public float m_Length = 1;
+
+
 	void Start () {
-		recreateMesh(width, length);
-	}
-	
-	void recreateMesh(int width, int length) {
-		this.lastLength = length;
-		this.lastWidth = width;
-		
-		
         MeshBuilder meshBuilder = new MeshBuilder();
         
         //Set up the vertices and triangles:
-        meshBuilder.Vertices.Add(new Vector3(-width / 2, 0.0f, -length / 2));
-        meshBuilder.UVs.Add(new Vector2(width / 2, 0.0f));
+        meshBuilder.Vertices.Add(new Vector3(-m_Width / 2f, 0.0f, -m_Length / 2f));
+        meshBuilder.UVs.Add(new Vector2(0.0f, 0.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(-width / 2, 0.0f, length / 2));
+        meshBuilder.Vertices.Add(new Vector3(-m_Width / 2f, 0.0f, m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(0.0f, 1.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(width / 2, 0.0f, length / 2));
+        meshBuilder.Vertices.Add(new Vector3(m_Width / 2f, 0.0f, m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(1.0f, 1.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
-        meshBuilder.Vertices.Add(new Vector3(width / 2, 0.0f, -length / 2));
+        meshBuilder.Vertices.Add(new Vector3(m_Width / 2f, 0.0f, -m_Length / 2f));
         meshBuilder.UVs.Add(new Vector2(1.0f, 0.0f));
         meshBuilder.Normals.Add(Vector3.up);
         
@@ -50,9 +41,7 @@ public class PlaneMesherUpper : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(width != lastWidth || length != lastLength) {
-			recreateMesh(width, length);
-		}
+	
 	}
 }
 
