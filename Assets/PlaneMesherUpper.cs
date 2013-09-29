@@ -36,7 +36,7 @@ public class PlaneMesherUpper : MonoBehaviour {
         myMesh.name = "JoshMesh";
 
         this.GetComponent<MeshFilter>().sharedMesh = myMesh;
-        this.GetComponent<MeshCollider>().sharedMesh = myMesh;
+      this.GetComponent<MeshCollider>().sharedMesh = myMesh;
 	}
 	
 	// Update is called once per frame

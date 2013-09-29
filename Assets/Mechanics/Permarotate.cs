@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Rotlight : MonoBehaviour {
+public class Permarotate : MonoBehaviour {
     public float rotateRateScale = 3.0f;
 
     // Use this for initialization
