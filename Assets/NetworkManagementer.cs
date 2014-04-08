@@ -53,6 +53,7 @@ public class NetworkManagementer : MonoBehaviour {
         GUI.Box(drawRect, "isClient" + Network.isClient);
         drawRect.y += 30;
         GUI.Box(drawRect, "isServer" + Network.isServer);
+
         drawRect.y += 30;
         GUI.Box(drawRect, "isQRunning" + Network.isMessageQueueRunning);
         drawRect.y += 40;

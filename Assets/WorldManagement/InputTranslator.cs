@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public enum TEST_MODE_OPTIONS {
     CAMERA_FPS_LOOK,
     CAMERA_FPS_MOVE,
-        CAMERA_FOLLOW_LOOK,
+    CAMERA_FOLLOW_LOOK,
     CAMERA_FOLLOW_MOVE
 }
 
@@ -99,6 +99,14 @@ public class InputTranslator : MonoBehaviour {
         mrMesh.material = m;
     }
 
+    void OnServerInitialized() {
+        updateTarget(((UnityEngine.GameObject) Network.Instantiate(createe, Vector3.zero, Quaternion.identity, 1)).GetComponent<Messageable>());
+    }
+
+    void OnConnectedToServer()
+    {
+        updateTarget(((UnityEngine.GameObject) Network.Instantiate(createe, Vector3.zero, Quaternion.identity, 1)).GetComponent<Messageable>());
+    }
     
     public void ReceiveMessage(WorldMessage message) {
 
@@ -138,24 +146,29 @@ public class InputTranslator : MonoBehaviour {
         }
     }
 
+    void updateTarget (Messageable newTarget)
+    {
+        if (newTarget != null && newTarget != target && (newTarget.networkView.isMine)) {
+	        if(target != null) applyMaterial(target, neutralMaterial);
+	        if(follower != null) applyMaterial(follower, followerMaterial);
+	        applyMaterial(newTarget, playerMaterial);
+	        target = newTarget;
+     	}
+	}
+
     void Update() {
         if(Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift)) {
            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
            RaycastHit hitData;
            if (Physics.Raycast(ray, out hitData)) {
                Messageable newR = hitData.transform.GetComponent<Messageable>();
-               if (newR != null && newR != target) {
-                  applyMaterial(target, neutralMaterial);
-                  if(follower != null) applyMaterial(follower, followerMaterial);
-                  applyMaterial(newR, playerMaterial);
-                  target = newR;
-               }
+               updateTarget (newR);
            }
         }
         if(Input.GetMouseButton(1)) {
            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
            RaycastHit hitData;
-           if (Physics.Raycast(ray, out hitData)) {
+           if (Physics.Raycast(ray, out hitData) && target != null) {
                moveMessageableTowards (target, hitData.point);
            }
         }
@@ -172,7 +185,7 @@ public class InputTranslator : MonoBehaviour {
            if (Physics.Raycast(ray, out hitData)) {
                Messageable newF = hitData.transform.GetComponent<Messageable>();
                if(follower != null) applyMaterial(follower, neutralMaterial);
-               if (newF != null) {
+               if (newF != null && newF.networkView.isMine) {
                   applyMaterial(newF, followerMaterial);
                   applyMaterial(target, playerMaterial);
                }
@@ -184,12 +197,11 @@ public class InputTranslator : MonoBehaviour {
         }
         if(Input.anyKey) {
            if(Input.GetKey(KeyCode.Escape)) {
-               Rect r = new Rect(Screen.height / 2 - 100, Screen.width / 2 - 100, Screen.height / 2 + 100, Screen.width / 2 + 100);
-               //GUI.Box (r, "treat me better");
+                Rect r = new Rect(Screen.height / 2 - 100, Screen.width / 2 - 100, Screen.height / 2 + 100, Screen.width / 2 + 100);
            }
            foreach (var key in messageMap.Keys) {
-               if (Input.GetKey(key)) {
-                  target.receiveMessage(messageMap[key]);
+				if (Input.GetKey(key) && target != null) {
+                    target.receiveMessage(messageMap[key]);
                }
            }
         }
